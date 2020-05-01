@@ -50,13 +50,6 @@ int main() {
 
     optionStrategy(optionInput(), x, dates, close_prices);
 
-/*
-  for(int i = 0; i < dates.size(); ++i){
-        EuropeanOption E(PUT, close_prices[i], 200, .05, .5, (dates.size() - i)/dates.size());
-        cout << "Price of " + x + " at close: " << close_prices[i] << ".  Option price:  " <<  E.getPrice() << endl;
-    }
-*/
-
     // Testing the iv calc, need to call every day to adjust the option price each day
     // by including new volatility calculation, using a new spot price, and reducing the time
     // pls fix, thx
