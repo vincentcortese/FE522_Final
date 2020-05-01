@@ -131,10 +131,6 @@ public:
         }
     }
 
-    double bisection_IV(double price) {
-        double bisection_vol=bisection(0.000001, .999999, 0.001, 200, price);
-        return bisection_vol;
-    }
 };
 
 class AmericanOption: public Option{

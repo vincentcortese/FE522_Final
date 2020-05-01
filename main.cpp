@@ -56,7 +56,4 @@ int main() {
 }
 
 // TODO
-// Figure out how to implement the bisection method in the loop so we can have new volatilities as the days go on
-// Start making profitability vectors for the different strategies and output those
 // Make sure risk free rate is correct
-// Potentially just move all the input stuff into a function into a header, focus on next week
