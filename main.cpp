@@ -90,7 +90,7 @@ int main() {
         cout << "A long call position gives you the right, but not the obligation to buy the stock at a certain " << endl
         << "price by a certain date. In this case, we will buy 1 call option of " + x + ". For simplicity, we will " << endl
         << "use an at-the-money European option that was purchased a year ago, and expires on May 1st." << endl;
-        for(int i = 0; i < dates.size(); ++i){
+        for(double i = 0; i < dates.size(); ++i){
             EuropeanOption E(CALL, close_prices[i], round(close_prices[0]), .05, .2, (dates.size() - i)/dates.size());
             option.push_back(E.getPrice());
             cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
@@ -110,7 +110,7 @@ int main() {
         cout << "A long put position gives you the right, but not the obligation to sell the stock at a certain " << endl
              << "price by a certain date. In this case, we will buy 1 put option of " + x + ". For simplicity, we will " << endl
              << "use an at-the-money European option that was purchased a year ago, and expires on May 1st." << endl;
-        for(int i = 0; i < dates.size(); ++i){
+        for(double i = 0; i < dates.size(); ++i){
             EuropeanOption E(PUT, close_prices[i], round(close_prices[0]), .05, .2, (dates.size() - i)/dates.size());
             option.push_back(E.getPrice());
             cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
@@ -138,7 +138,7 @@ int main() {
             //straddle
             cout << "We purchase a Call and Put with the same strike price, this strategy is when an investor " << endl <<
             "anticipates significant price movement, but is unsure of the direction." << endl;
-            for(int i = 0; i < dates.size(); ++i){
+            for(double i = 0; i < dates.size(); ++i){
                 EuropeanOption E(CALL, close_prices[i], round(close_prices[0]), .05, .2, (dates.size() - i)/dates.size());
                 option.push_back(E.getPrice());
                 EuropeanOption F(PUT, close_prices[i], round(close_prices[0]), .05, .2, (dates.size() - i)/dates.size());
@@ -156,7 +156,7 @@ int main() {
             //strangle
             cout << "We purchase a Call and Put with different strike prices. These are typically out of the money, " << endl <<
             "strangles are usually less expensive, but require greater price movements to generate profits." << endl;
-            for(int i = 0; i < dates.size(); ++i){
+            for(double i = 0; i < dates.size(); ++i){
                 EuropeanOption E(CALL, close_prices[i], round(close_prices[0]*1.1), .05, .2, (dates.size() - i)/dates.size());
                 option.push_back(E.getPrice());
                 EuropeanOption F(PUT, close_prices[i], round(close_prices[0]*.9), .05, .2, (dates.size() - i)/dates.size());
@@ -169,7 +169,6 @@ int main() {
                  "."<< endl << "This was on date: " << dates[max_element(option.begin(), option.end()) - option.begin()] << endl
                     << "The max the " + x + " put was worth was: $" << *max_element(option1.begin(), option1.end()) << "."<< endl
                     << "This was on date: " << dates[max_element(option1.begin(), option1.end()) - option1.begin()] << endl;
-
         }
 
     } else if (input == 8){
@@ -203,9 +202,7 @@ int main() {
 }
 
 // TODO
-// Make sure the european option works in the loop, it appears to be putting out 0 way too often.
 // Figure out how to implement the bisection method in the loop so we can have new volatilities as the days go on
 // Start making profitability vectors for the different strategies and output those
 // Make sure risk free rate is correct
 // Potentially just move all the input stuff into a function into a header, focus on next week
-//
