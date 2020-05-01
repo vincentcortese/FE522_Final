@@ -1,5 +1,45 @@
 #ifndef FINAL_OPTIONSTRATEGY_H
 #define FINAL_OPTIONSTRATEGY_H
+#include "optionPricing.h"
+#include <numeric>
+
+vector<double> pct_change(const vector<double> prices){
+    vector<double> percents;
+    for (int i = 1; i < prices.size(); ++i) {
+        percents.push_back((prices[i]/prices[i-1])-1);
+    }
+    return percents;
+}
+
+double mean (const vector<double> nums){
+    return accumulate( nums.begin(), nums.end(), 0.0)/ nums.size();
+}
+
+double stddev(const vector<double> nums) {
+    double total = 0;
+    int size = nums.size();
+    for (int i = 0; i < size; ++i) {
+        double mean_value = mean(nums);
+        total = total + (nums.at(i) - mean_value)*(nums.at(i) - mean_value);
+    }
+
+    return sqrt(total / size);
+}
+
+//https://www.techiedelight.com/get-slice-sub-vector-from-vector-cpp/
+template<typename T>
+std::vector<T> slice(std::vector<T> &v, int m, int n)
+{
+    std::vector<T> vec(n - m + 1);
+    std::copy(v.begin() + m, v.begin() + n + 1, vec.begin());
+    return vec;
+}
+
+double calcvol(const vector<double> prices){
+    if(prices.size() == 1) return 0;
+    return stddev(pct_change(prices));
+}
+
 double optionInput(){
     cout << "Choose an Option Strategy to test: (pick 1-9)\n";
     cout << "[1] Long Call\n"
@@ -51,7 +91,8 @@ void optionStrategy(int input,
              << "use an at-the-money European option that was purchased a year ago, and expires on May 1st." << endl;
         cout << "\nStock and option data:\n";
         for(double i = 0; i < dates.size(); ++i){
-            EuropeanOption E(CALL, close_prices[i], round(close_prices[0]), .05, .2, (dates.size() - i)/dates.size());
+            EuropeanOption E(CALL, close_prices[i], round(close_prices[0]), .05,
+                    calcvol(slice(close_prices, 0, i)), (dates.size() - i)/dates.size());
             option.push_back(E.getPrice());
         }
         for(double i = 0; i < 3; ++i){
@@ -88,7 +129,8 @@ void optionStrategy(int input,
 
         cout << "\nStock and option data:\n";
         for(double i = 0; i < dates.size(); ++i){
-            EuropeanOption E(CALL, close_prices[i], strike, .05, .2, (dates.size() - i)/dates.size());
+            EuropeanOption E(CALL, close_prices[i], strike, .05,
+                             calcvol(slice(close_prices, 0, i)), (dates.size() - i)/dates.size());
             option.push_back(E.getPrice());
         }
         for(double i = 0; i < 3; ++i){
@@ -125,7 +167,8 @@ void optionStrategy(int input,
              << "use an at-the-money European option that was purchased a year ago, and expires on May 1st." << endl;
         cout << "\nStock and option data:\n";
         for(double i = 0; i < dates.size(); ++i){
-            EuropeanOption E(PUT, close_prices[i], round(close_prices[0]), .05, .2, (dates.size() - i)/dates.size());
+            EuropeanOption E(PUT, close_prices[i], round(close_prices[0]), .05,
+                             calcvol(slice(close_prices, 0, i)), (dates.size() - i)/dates.size());
             option.push_back(E.getPrice());
         }
         for(double i = 0; i < 3; ++i){
@@ -170,9 +213,11 @@ void optionStrategy(int input,
                  "anticipates significant price movement, but is unsure of the direction." << endl;
             cout << "\nStock and option data:\n";
             for(double i = 0; i < dates.size(); ++i){
-                EuropeanOption E(CALL, close_prices[i], round(close_prices[0]), .05, .2, (dates.size() - i)/dates.size());
+                EuropeanOption E(CALL, close_prices[i], round(close_prices[0]), .05,
+                                 calcvol(slice(close_prices, 0, i)), (dates.size() - i)/dates.size());
                 option.push_back(E.getPrice());
-                EuropeanOption F(PUT, close_prices[i], round(close_prices[0]), .05, .2, (dates.size() - i)/dates.size());
+                EuropeanOption F(PUT, close_prices[i], round(close_prices[0]), .05,
+                                calcvol(slice(close_prices, 0, i)), (dates.size() - i)/dates.size());
                 option1.push_back(F.getPrice());
             }
             for(double i = 0; i < 3; ++i){
@@ -199,9 +244,11 @@ void optionStrategy(int input,
                  "strangles are usually less expensive, but require greater price movements to generate profits." << endl;
             cout << "\nStock and option data:\n";
             for(double i = 0; i < dates.size(); ++i){
-                EuropeanOption E(CALL, close_prices[i], round(close_prices[0]*1.1), .05, .2, (dates.size() - i)/dates.size());
+                EuropeanOption E(CALL, close_prices[i], round(close_prices[0]*1.1), .05,
+                        calcvol(slice(close_prices, 0, i)), (dates.size() - i)/dates.size());
                 option.push_back(E.getPrice());
-                EuropeanOption F(PUT, close_prices[i], round(close_prices[0]*.9), .05, .2, (dates.size() - i)/dates.size());
+                EuropeanOption F(PUT, close_prices[i], round(close_prices[0]*.9), .05,
+                        calcvol(slice(close_prices, 0, i)), (dates.size() - i)/dates.size());
                 option1.push_back(F.getPrice());
                 cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
                      << "  Call price:  " << setprecision(2) << fixed << option[i]

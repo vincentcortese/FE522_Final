@@ -3,9 +3,6 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
-#include <iomanip>
-#include <sstream>
-#include "include/optionPricing.h"
 #include "include/optionStrategy.h"
 using namespace std;
 
@@ -50,15 +47,6 @@ int main() {
 
     optionStrategy(optionInput(), x, dates, close_prices);
 
-    // Testing the iv calc, need to call every day to adjust the option price each day
-    // by including new volatility calculation, using a new spot price, and reducing the time
-    // pls fix, thx
-
-    /*EuropeanOption E(CALL, 100, 100, .05, .3, 30/252);
-    cout << E.bisection_IV(65) << endl;*/
-
-    //AmericanOption a(CALL, 65, 60, .006, .3, 1);
-    //cout << a.getPrice() << endl;
     return 0;
 }
 
