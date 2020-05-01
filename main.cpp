@@ -7,7 +7,7 @@
 #include <sstream>
 #include <numeric>
 #include "include/optionPricing.h"
-
+#include "include/optionStrategy.h"
 using namespace std;
 
 vector<double> pct_change(const vector<double> prices){
@@ -231,9 +231,8 @@ int main() {
 
     /*EuropeanOption E(CALL, 100, 100, .05, .3, 30/252);
     cout << E.bisection_IV(65) << endl;*/
+    optionStrategy(optionInput(), x, dates, close_prices);
 
-    //AmericanOption a(CALL, 65, 60, .006, .3, 1);
-    //cout << a.getPrice() << endl;
     return 0;
 }
 
