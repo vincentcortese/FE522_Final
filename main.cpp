@@ -28,27 +28,37 @@ int main() {
         cerr << "Please pick from the stocks above (case sensitive)." << endl;
     }
 
-/*    // Open the file now
-    ifstream myFile("../../Final/input/" + x + ".csv");
+    // Open the file now
+    ifstream myFile;
+    myFile.open("../../Final/input/" + x + ".txt");
     if (!myFile) {
         cerr << "File failed to open." << endl;
     }
-    vector<Stock> Data;
-    Stock temp;
-    while (getline(myFile, temp.date, ','))
-    {
-        getline(myFile, temp.open);
-        getline(myFile, temp.high);
-        getline(myFile, temp.low);
-        getline(myFile, temp.close);
-        getline(myFile, temp.adjClose);
-        getline(myFile, temp.volume);
-        Data.push_back(temp);
+
+    vector<string> dates;
+    vector<double> close_prices;
+
+    string date, name;
+    double close;
+    getline(myFile, name);
+
+    while (myFile.good()){
+        myFile >> date >> close;
+        dates.push_back(date);
+        close_prices.push_back(close);
     }
 
-    for(int i = 0; i < Data.size(); ++i){
-        cout << Data[i] << endl;
-    }*/
+    // File is read so we can now start to do stuff... we have to ask the user to choose from our list of option
+    // strategies
+
+
+
+
+
+    for(int i = 0; i < dates.size(); ++i){
+        EuropeanOption E(CALL, close_prices[i], 200, .025, .2, (dates.size() - i)/252);
+        cout << "Price of " + x + " at close: " << close_prices[i] << ".  Option price:  " <<  E.getPrice() << endl;
+    }
 
     // Testing the iv calc, need to call every day to adjust the option price each day
     // by including new volatility calculation, using a new spot price, and reducing the time
@@ -57,6 +67,6 @@ int main() {
     cout << E.bisection_IV(65) << endl;*/
 
     AmericanOption a(CALL, 65, 60, .006, .3, 1);
-    cout << a.getPrice() << endl;
+    //cout << a.getPrice() << endl;
     return 0;
 }
