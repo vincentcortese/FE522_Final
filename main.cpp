@@ -30,7 +30,7 @@ int main() {
 
     // Open the file now
     ifstream myFile;
-    myFile.open("../../Final/input/" + x + ".txt");
+    myFile.open("../input/" + x + ".txt");
     if (!myFile) {
         cerr << "File failed to open." << endl;
     }
