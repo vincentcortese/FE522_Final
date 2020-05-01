@@ -18,9 +18,7 @@ protected:
     Option(OptionType o1, double s1, double k1, double r1, double v1, double t1)
             : o{o1}, s{s1}, k{k1}, r{r1}, v{v1}, t{t1} {}
 public:
-    virtual double getPrice(){
-        return(0.0);
-    }
+    virtual double getPrice() = 0;
     double getSpot() {return s;}
     double getK() { return k;}
     double getR() { return  r;}
@@ -134,7 +132,7 @@ public:
     }
 
     double bisection_IV(double price) {
-        double bisection_vol=bisection(0.000001, 0.99999, 0.001, 200, price);
+        double bisection_vol=bisection(0.000001, .999999, 0.001, 200, price);
         return bisection_vol;
     }
 };
