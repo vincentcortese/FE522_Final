@@ -153,9 +153,9 @@ void optionStrategy(int input,
             close_prices[dates.size() - 1] * 100 - close_prices[0] * 100 + option[0] * 100 << endl;
         } else {
             cout << "The option was exercised and we have to sell our 100 shares at strike: " << strike <<
-                 ". \nThe stock price at expiration was: " << close_prices[dates.size() - 1] << ".\n";
-            cout << "So we are capped to our gains from the stock and have to sell at the strike price.\n" <<
-            "Our total P&L is: $" << strike  * 100 -  close_prices[0] * 100 << ", so we probably would have been better off holding the stock.";
+                 ". \nThe stock price at expiration was: " << close_prices[dates.size() - 1] << ".\n\n";
+            cout << "We are capped to our gains from the stock and have to sell at the strike price.\n" <<
+            "Our total P&L is: $" << strike  * 100 -  close_prices[0] * 100 << ", we would have been better off holding the stock.";
         }
     } else if (input == 3) {
         // Bull Call Spread
@@ -424,13 +424,49 @@ void optionStrategy(int input,
 
     } else if (input == 8){
         // Protective Collar
+        cout << "The protective collar is created by buying a put option (typically otm) and then also writing a call option (typically otm).\n"
+        << "The basic objective of the collar is to hedge downside risk, the call should have a slightly higher strike than the put. This is\n"
+        << "essentially a covered call, with a put to further protect the downside, if the stock crashes.\n";
+        cout << "\nStock and option data:\n";
+        for(double i = 0; i < dates.size(); ++i){
+            EuropeanOption E(CALL, close_prices[i], round(close_prices[0] * 1.05), .05, v, (dates.size() - i)/dates.size());
+            option.push_back(E.getPrice());
+            EuropeanOption F(PUT, close_prices[i], round(close_prices[0] * .95), .05, v, (dates.size() - i)/dates.size());
+            option1.push_back(F.getPrice());
+        }
+        for(int i = 0; i < 3; ++i){
+            cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
+                 << "  Call price: $" << setprecision(2) << fixed << option[i]
+                 << "  Put price: $" << setprecision(2) << fixed << option1[i] << endl;
+        }
+        cout << ".\n.\n.\n";
+        for(int i = 4; i > 1; --i){
+            cout << "Date: " << dates[dates.size()-i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[dates.size()-i]
+                 << "  Call price: $" << setprecision(2) << fixed << option[dates.size()-i]
+                 << "  Put price: $" << setprecision(2) << fixed << option1[dates.size() - i] << endl;
+        }
+        cout << "\nWe gain $" << option[0] * 100 << " from the sale of the call option, on date: " << dates[0] << endl;
+        cout << "However, buying 100 shares cost: $" << close_prices[0] * 100 << ", and the put cost: $" << option1[0]
+        << ", with strike: " << round(close_prices[0] * .95) << endl << endl;
+
+        if(option[dates.size() - 1] < 0.01){
+            cout << "This option expired worthless and we keep the premium and make money from the Put. The premium was worth: $" << option[0] * 100 << ".\n"
+                 << "The stock price is now: $" << close_prices[dates.size() - 1] << ". Our total P&L is: $" <<
+                 close_prices[dates.size() - 1] * 100 - close_prices[0] * 100 + option[0] * 100  - option1[0] * 100
+                 + (round(close_prices[0] * .95) - close_prices[dates.size() - 1]) * 100 << endl;
+        } else {
+            cout << "The option was exercised and we have to sell our 100 shares at strike: " << round(close_prices[0] * 1.05) <<
+                 ". \nThe stock price at expiration was: " << close_prices[dates.size() - 1] << ".\n\n";
+            cout << "We are capped to our gains from the stock and have to sell at the strike price, while also taking a loss from our put.\n" <<
+                 "Our total P&L is: $" << round(close_prices[0] * 1.05)  * 100 -  close_prices[0] * 100 - option1[0] * 100 << ", we would have been better off holding the stock.";
+        }
     } else if (input == 9){
         // Iron Condor
-        cout << "This is another advance option strategy, consisting of 2 calls(long and short) and 2 puts(long and short).\n" <<
+        cout << "This is another advanced option strategy, consisting of 2 calls(long and short) and 2 puts(long and short).\n" <<
         "The goal is to profit from low volatility. Hoping that the stock finishes in between the strike prices of the short\n" <<
-        "positions. The max profit is from the credit received from the short positions, since these are ITM, and the\n" <<
-        "long positions, are referred to as wings, these are OTM. The investor receives credit from the sale because of the more\n" <<
-        "expensive ITM options, which is more than he pays for the OTM options.\n";
+        "positions. The max profit is from the credit received from the short positions, these are barely OTM, and the\n" <<
+        "long positions, which are referred to as wings, are more OTM. The investor receives credit from the short (barely OTM) \n" <<
+        " options, which is more than he pays for the further OTM options.\n";
 
         cout << "\nStock and option data:\n";
         for (double i = 0; i < dates.size(); ++i) {
@@ -473,29 +509,33 @@ void optionStrategy(int input,
 
         cout << "The net credit of the contract is: $" << option[0]  - option1[0] + option2[0] - option3[0] << endl << endl;
 
-        if(close_prices[dates.size() - 1] <  round(close_prices[0] * .95) || close_prices[dates.size() - 1] >  round(close_prices[0] * 1.05)){
-            cout << "The stock finished at: " << close_prices[dates.size() - 1] << ", outside the range of our wing strike prices, making us lose max\n" <<
-                 "limit. Our loss was: $" << -option[0] + 2*option1[0] - option2[0] << " per share." << endl;
-        } else if (close_prices[dates.size() -1] < round(close_prices[0])){
-            cout << "The stock finished at: " << close_prices[dates.size() - 1] << ", near the ATM strike we originally bought it at and we have maximized our profits.\n" <<
-                 "Our P&L is: $" << -option[0] + 2*option1[0] - option2[0] + close_prices[dates.size() -1] - round(close_prices[0] * .9)
+        if(close_prices[dates.size() - 1] >  round(close_prices[0] * 1.05)) {
+            cout << "The stock finished at: " << close_prices[dates.size() - 1]
+                 << ", above the range of our wing strike prices, making us lose the max limit.\n" <<
+                 "The loss was: $" << option[0] - option1[0] + option2[0] - option3[0]
+                                      + (close_prices[dates.size() - 1] - round(close_prices[0] * 1.05))
+                                      - (close_prices[dates.size() - 1] - round(close_prices[0] * 1.025))
                  << " per share." << endl;
+
+        } else if (close_prices[dates.size() - 1] <  round(close_prices[0] * .95)){
+            cout << "The stock finished at: " << close_prices[dates.size() - 1]
+                 << ", below the range of our wing strike prices, making us lose the max limit.\n";
+
+            cout << "The loss was: $" << option[0] - option1[0] + option2[0] - option3[0]
+                                 + (round(close_prices[0] * .95) - close_prices[dates.size() - 1])
+                                 - ((round(close_prices[0]) * .975) - close_prices[dates.size() - 1]) << " per share.\n";
         } else {
-            cout << "The stock finished at: " << close_prices[dates.size() - 1] << ", near the ATM strike we originally bought it at and we have maximized our profits.\n" <<
-                 "Our P&L is: $" << -option[0] + 2*option1[0] - option2[0] + close_prices[dates.size() -1] - round(close_prices[0] * .9)
-                                    - 2 * (close_prices[dates.size() - 1] - round(close_prices[0])) << " per share." << endl;
+            cout << "The stock finished at: " << close_prices[dates.size() - 1] << ", which is in between our short call and puts. This would yield\n" <<
+            "the max profit, which is equal to the original credit: $" << option[0] - option1[0] + option2[0] - option3[0] << " per share.\n" <<
+            "All the options expired worthless, so we just keep the initial credit.\n";
         }
-
-    // FINISH P&L LATER
     }
-
 }
 
 //TODO
-//Protective COllar
-// Iron Condor
-// Butterfly call spread
-// Cash covered put?
+// error check all the strategies
+// make sure outputs are cleaned up, descriptive and concise
+// Also, touch up the profit and loss from the straddle/strangle
 
 
 #endif //FINAL_OPTIONSTRATEGY_H
