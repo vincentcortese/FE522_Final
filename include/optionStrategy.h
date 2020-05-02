@@ -91,22 +91,22 @@ void optionStrategy(int input,
              << "price by a certain date. In this case, we will buy 1 call option of " + x + ". For simplicity, we will " << endl
              << "use an at-the-money European option that was purchased a year ago, and expires on May 1st." << endl;
         cout << "\nStock and option data:\n";
-
         for(double i = 0; i < dates.size(); ++i){
             EuropeanOption E(CALL, close_prices[i], round(close_prices[0]), .05, v, (dates.size() - i)/dates.size());
             option.push_back(E.getPrice());
-            cout << "T: " << (dates.size() - i)/dates.size() << " V: " << v << endl;
+            // cout << "T: " << (dates.size() - i)/dates.size() << " V: " << v << endl;
         }
-        for(double i = 0; i < 3; ++i){
+
+        for(int i = 0; i < 3; ++i){
             cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
                  << "  Option price:  $" << setprecision(2) << fixed << option[i] << endl;
         }
         cout << ".\n.\n.\n";
-        for(double i = 4; i > 1; --i){
+        for(int i = 4; i > 1; --i){
             cout << "Date: " << dates[dates.size()-i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[dates.size()-i]
                  << "  Option price:  $" << setprecision(2) << fixed << option[dates.size()-i] << endl;
         }
-        cout << "\nThis option cost: $" << option[0] << " on the day of purchase."<< endl;
+        cout << "\nThis option cost: $" << option[0] << " on the day of purchase, with a strike of: " << round(close_prices[0]) <<  endl;
 
         cout << "\nThe max the " + x + " call was worth was: $" << *max_element(option.begin(), option.end()) <<
              "."<< endl << "This was on date: " << dates[max_element(option.begin(), option.end()) - option.begin()]<< endl;
@@ -118,8 +118,9 @@ void optionStrategy(int input,
         } else {
             cout << "At expiration, the option could be exercised and 100 shares could be purchased at strike: " << round(close_prices[0]) <<
             ". The stock price at expiration was: " << close_prices[dates.size() - 1] << ".\n";
+            cout << "Could have made: $" << close_prices[dates.size()-1] - round(close_prices[0]) <<
+            " per share, if you exercised and immediately sold."<<endl;
         }
-
 
     } else if (input == 2) {
         // Covered call
@@ -134,17 +135,17 @@ void optionStrategy(int input,
             EuropeanOption E(CALL, close_prices[i], strike, .05, v, (dates.size() - i)/dates.size());
             option.push_back(E.getPrice());
         }
-        for(double i = 0; i < 3; ++i){
+        for(int i = 0; i < 3; ++i){
             cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
                  << "  Option price:  $" << setprecision(2) << fixed << option[i] << endl;
         }
         cout << ".\n.\n.\n";
-        for(double i = 4; i > 1; --i){
+        for(int i = 4; i > 1; --i){
             cout << "Date: " << dates[dates.size()-i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[dates.size()-i]
                  << "  Option price:  $" << setprecision(2) << fixed << option[dates.size()-i] << endl;
         }
-        cout << "\nThis option was worth: $" << option[0] * 100 << " on the day of sale."<< endl;
-        cout << "However, buying 100 shares cost: $" << close_prices[0] * 100 << endl;
+        cout << "\nWe gain $" << option[0] * 100 << " from the sale of the option, on date: " << dates[0] << endl;
+        cout << "However, buying 100 shares cost: $" << close_prices[0] * 100 << endl << endl;
 
         if(option[dates.size() - 1] < 0.01){
             cout << "This option expired worthless and we keep the premium. Which was worth: $" << option[0] * 100 << ".\n"
@@ -176,33 +177,92 @@ void optionStrategy(int input,
             option1.push_back(F.getPrice());
         }
 
-        for (double i = 0; i < 3; ++i) {
+        for (int i = 0; i < 3; ++i) {
             cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
-                 << "  Call 1 price:  " << setprecision(2) << fixed << option[i]
-                 << "  Call 2 price:  " << setprecision(2) << fixed << option1[i] << endl;
+                 << "  Long Call price: " << setprecision(2) << fixed << option[i]
+                 << "  Short Call price: " << setprecision(2) << fixed << option1[i] << endl;
         }
         cout << ".\n.\n.\n";
-        for (double i = 4; i > 1; --i) {
+        for (int i = 4; i > 1; --i) {
             cout << "Date: " << dates[dates.size() - i] << "  " << x + " close price: " << setprecision(2) << fixed
                  << close_prices[dates.size() - i]
-                 << "  Call 1 price:  " << setprecision(2) << fixed << option[dates.size() - i]
-                 << "  Call 2 price:  " << setprecision(2) << fixed << option1[dates.size() - i] << endl;
+                 << "  Long Call price: " << setprecision(2) << fixed << option[dates.size() - i]
+                 << "  Short Call price: " << setprecision(2) << fixed << option1[dates.size() - i] << endl;
         }
+
+        cout << "\nThe long call is worth: $" << option[0] << " on the day of purchase, with a strike price of: " <<
+        round(close_prices[0] * 1.1) << endl << "The short call is worth: $" << option1[0] << " on the day of sale, with a strike price of: " <<
+        round(close_prices[0] * 1.2) << endl << endl;
 
         if (option[dates.size() - 1] < .01) {
             cout << "Both options expire worthless, so you lose your initial investment but you gain the premium on the short call.\n"
-                <<"P&L: $(" << -option[0] + option1[0] << ")\n";
+                <<"Loss of: $" << -option[0] + option1[0] << " per share\n";
         } else if (option1[dates.size() - 1] > 0.01) {
             cout << "This scenario leads to capped gains. We get to buy the stock at the lower strike, and sell at the higher strike. \n"
-                    << "At expiration, the profits are limited to the difference in strike prices.\n"
-                    << "P&L: $" << round(close_prices[0] * 1.2) - round(close_prices[0] * 1.1) << endl;
+                    << "At expiration, the profits are limited to the difference in strike prices, less the cost of the options.\n"
+                    << "P&L: $" << round(close_prices[0] * 1.2) - round(close_prices[0] * 1.1)  -option[0] + option1[0] <<
+                    " per share."<< endl;
         } else if(option[dates.size() - 1] > .01 && option1[dates.size() - 1] < 0.01) {
-            cout << "This is the best case scenario. The option you bought is in-the-money and the option you sold expired \n" <<
-                 "worthless. P&L: $" << close_prices[dates.size()-1] - round(close_prices[0] * 1.1) + option1[0] << endl;
+            cout << "This is the best case scenario. The option you bought is in-the-money and the option you sold expired " <<
+                 "worthless.\nP&L: $" << close_prices[dates.size()-1] - round(close_prices[0] * 1.1) + option1[0] <<
+                 " per share." << endl;
     }
 
     } else if (input == 4) {
         // Long Call Butterfly Spread
+        cout << "This is an advanced strategy where the investor buys 1 ITM call, sells 2 ATM calls, and then buys 1 OTM call.\n" <<
+        "All three options have the same expirations but different strike prices. This is for an investor that has a neutral\n" <<
+        "outlook on the stock, or slightly bullish. Profits are made when the stock finishes close to the strike place.\n";
+        cout << "\nStock and option data:\n";
+
+        for (double i = 0; i < dates.size(); ++i) {
+            EuropeanOption E(CALL, close_prices[i], round(close_prices[0] * .9), .05, v,
+                             (dates.size() - i) / dates.size());
+            option.push_back(E.getPrice());
+            EuropeanOption F(CALL, close_prices[i], round(close_prices[0]), .05, v,
+                             (dates.size() - i) / dates.size());
+            option1.push_back(F.getPrice());
+            EuropeanOption G(CALL, close_prices[i], round(close_prices[0] * 1.1), .05, v,
+                    (dates.size() - i) / dates.size());
+            option2.push_back(G.getPrice());
+        }
+
+        for (int i = 0; i < 3; ++i) {
+            cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
+                 << "  Long ITM Call price: " << setprecision(2) << fixed << option[i]
+                 << "  Short ATM Call price: " << setprecision(2) << fixed << option1[i]
+                 << "  Long OTM Call price: " << setprecision(2) << fixed << option2[i] << endl;
+        }
+        cout << ".\n.\n.\n";
+        for (int i = 4; i > 1; --i) {
+            cout << "Date: " << dates[dates.size() - i] << "  " << x + " close price: " << setprecision(2) << fixed
+                 << close_prices[dates.size() - i]
+                    << "  Long ITM Call price: " << setprecision(2) << fixed << option[dates.size() - i]
+                    << "  Short ATM Call price: " << setprecision(2) << fixed << option1[dates.size() - i]
+                    << "  Long OTM Call price: " << setprecision(2) << fixed << option2[dates.size() - i] << endl;
+        }
+
+        cout << "\nThe long ITM call is worth: $" << option[0] << " on the day of purchase, with a strike price of: " <<
+             round(close_prices[0] * .9) << endl << "The short ATM call is worth: $" << option1[0] << " on the day of sale, with a strike price of: " <<
+             round(close_prices[0]) << endl << "The long OTM call is worth: $" << option2[0] <<  " on the day of purchase, with a strike price of: "
+             << round(close_prices[0]*1.1) << endl <<endl;
+
+        cout << "The net cost of the contract is: $" << -option[0] + 2*option1[0] - option2[0] << endl << endl;
+
+        if(close_prices[dates.size() - 1] <  round(close_prices[0] * .9) || close_prices[dates.size() - 1] >  round(close_prices[0] * 1.1)){
+            cout << "The stock finished at: " <<close_prices[dates.size() - 1] << ", outside the range of our long call strike prices, making us lose the initial\n" <<
+            "amount we paid for all the options. Our loss was: $" << -option[0] + 2*option1[0] - option2[0] << " per share." << endl;
+        } else if (close_prices[dates.size() -1] < round(close_prices[0])){
+            cout << "The stock finished at: " << close_prices[dates.size() - 1] << ", near the ATM strike we originally bought it at and we have maximized our profits.\n" <<
+            "Our P&L is: $" << -option[0] + 2*option1[0] - option2[0] + close_prices[dates.size() -1] - round(close_prices[0] * .9)
+            << " per share." << endl;
+        } else {
+            cout << "The stock finished at: " << close_prices[dates.size() - 1] << ", near the ATM strike we originally bought it at and we have maximized our profits.\n" <<
+                 "Our P&L is: $" << -option[0] + 2*option1[0] - option2[0] + close_prices[dates.size() -1] - round(close_prices[0] * .9)
+                 - 2 * (close_prices[dates.size() - 1] - round(close_prices[0])) << " per share." << endl;
+        }
+
+
     } else if (input == 5){
         // Long put
         cout << "A long put position gives you the right, but not the obligation to sell the stock at a certain " << endl
@@ -215,12 +275,12 @@ void optionStrategy(int input,
 
             cout << "T: " << (dates.size() - i)/dates.size() << " V: " << calcvol(slice(close_prices, 0, i)) << endl;
         }
-        for(double i = 0; i < 3; ++i){
+        for(int i = 0; i < 3; ++i){
             cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
                  << "  Option price:  $" << setprecision(2) << fixed << option[i] << endl;
         }
         cout << ".\n.\n.\n";
-        for(double i = 4; i > 1; --i){
+        for(int i = 4; i > 1; --i){
             cout << "Date: " << dates[dates.size()-i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[dates.size()-i]
                  << "  Option price:  $" << setprecision(2) << fixed << option[dates.size()-i] << endl;
         }
@@ -254,33 +314,34 @@ void optionStrategy(int input,
                              (dates.size() - i) / dates.size());
             option1.push_back(F.getPrice());
         }
-        cout << "We buy a put and sell on a put on date: " << dates[0] << ".\nThe long put was purchased for: $" << option[0] <<
-        " with strike: " << round(close_prices[0] * 1.1) << ".\nThe short put was sold for: $" << option1[0] << " with strike: "
-        << round(close_prices[0] * .9) <<".\n";
-
-        for (double i = 0; i < 3; ++i) {
+        for (int i = 0; i < 3; ++i) {
             cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
-                 << "  Put 1 price:  " << setprecision(2) << fixed << option[i]
-                 << "  Put 2 price:  " << setprecision(2) << fixed << option1[i] << endl;
+                 << "  Long Put price: " << setprecision(2) << fixed << option[i]
+                 << "  Short Put price: " << setprecision(2) << fixed << option1[i] << endl;
         }
         cout << ".\n.\n.\n";
-        for (double i = 4; i > 1; --i) {
+        for (int i = 4; i > 1; --i) {
             cout << "Date: " << dates[dates.size() - i] << "  " << x + " close price: " << setprecision(2) << fixed
                  << close_prices[dates.size() - i]
-                 << "  Put 1 price:  " << setprecision(2) << fixed << option[dates.size() - i]
-                 << "  Put 2 price:  " << setprecision(2) << fixed << option1[dates.size() - i] << endl;
+                 << "  Long Put price: " << setprecision(2) << fixed << option[dates.size() - i]
+                 << "  Short Put price: " << setprecision(2) << fixed << option1[dates.size() - i] << endl;
         }
+        cout << "\nWe buy a put and sell a put on date: " << dates[0] << ".\nThe long put was purchased for: $" << option[0] <<
+             " with strike: " << round(close_prices[0] * 1.1) << ".\nThe short put was sold for: $" << option1[0] << " with strike: "
+             << round(close_prices[0] * .9) <<".\n\n";
 
         if (option[dates.size() - 1] < .01) {
             cout << "Both options expire worthless, so you lose your initial investment but you gain the premium on the short call.\n"
-                 <<"P&L: $(" << -option[0] + option1[0] << ")\n";
+                 <<"Loss: $" << -option[0] + option1[0] << " per share.\n";
         } else if (option1[dates.size() - 1] > 0.01) {
             cout << "This scenario leads to capped gains. We get to exercise our put, however, we have to cover the short put as well. \n"
-                 << "P&L: $" << round(close_prices[0] * 1.1) - round(close_prices[0] * .9) << endl;
+                 << "P&L: $" << round(close_prices[0] * 1.1) - round(close_prices[0] * .9) -option[0] + option1[0] <<
+                 " per share." << endl;
             cout << "At expiration, the profits are limited to the difference in strike prices.\n";
         } else if(option[dates.size() - 1] > .01 && option1[dates.size() - 1] < 0.01) {
-            cout << "This is the best case scenario. The option you bought is in-the-money and the option you sold expired \n" <<
-                 "worthless. P&L: $" << round(close_prices[0] * 1.1) - close_prices[dates.size()-1] + option1[0] << endl;
+            cout << "This is the best case scenario. The option you bought is in-the-money and the option you sold expired" <<
+                 "worthless.\nP&L: $" << round(close_prices[0] * 1.1) - close_prices[dates.size()-1] + option1[0] -option[0]
+                 << " per share." << endl;
         }
 
     } else if (input == 7){
@@ -291,10 +352,8 @@ void optionStrategy(int input,
         cin >> n;
         while(n != 1 && n != 2) {
             cout << "Invalid!\n\n";
-
             cout << "[1] Straddle\n"
                  << "[2] Strangle\n";
-
             cin >> n;
         }
         if(n == 1){
@@ -308,13 +367,13 @@ void optionStrategy(int input,
                 EuropeanOption F(PUT, close_prices[i], round(close_prices[0]), .05, v, (dates.size() - i)/dates.size());
                 option1.push_back(F.getPrice());
             }
-            for(double i = 0; i < 3; ++i){
+            for(int i = 0; i < 3; ++i){
                 cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
                         << "  Call price:  " << setprecision(2) << fixed << option[i]
                         << "  Put price:  " << setprecision(2) << fixed << option1[i]<< endl;
             }
             cout << ".\n.\n.\n";
-            for(double i = 4; i > 1; --i){
+            for(int i = 4; i > 1; --i){
                 cout << "Date: " << dates[dates.size()-i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[dates.size()-i]
                         << "  Call price:  " << setprecision(2) << fixed << option[dates.size() - i]
                         << "  Put price:  " << setprecision(2) << fixed << option1[dates.size() - i]<< endl;
@@ -341,13 +400,13 @@ void optionStrategy(int input,
                 EuropeanOption F(PUT, close_prices[i], round(close_prices[0]*.9), .05, v, (dates.size() - i)/dates.size());
                 option1.push_back(F.getPrice());
             }
-            for(double i = 0; i < 3; ++i){
+            for(int i = 0; i < 3; ++i){
                 cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
                      << "  Call price:  " << setprecision(2) << fixed << option[i]
                      << "  Put price:  " << setprecision(2) << fixed << option1[i]<< endl;
             }
             cout << ".\n.\n.\n";
-            for(double i = 4; i > 1; --i){
+            for(int i = 4; i > 1; --i){
                 cout << "Date: " << dates[dates.size()-i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[dates.size()-i]
                      << "  Call price:  " << setprecision(2) << fixed << option[dates.size() - i]
                      << "  Put price:  " << setprecision(2) << fixed << option1[dates.size() - i]<< endl;
@@ -367,7 +426,67 @@ void optionStrategy(int input,
         // Protective Collar
     } else if (input == 9){
         // Iron Condor
+        cout << "This is another advance option strategy, consisting of 2 calls(long and short) and 2 puts(long and short).\n" <<
+        "The goal is to profit from low volatility. Hoping that the stock finishes in between the strike prices of the short\n" <<
+        "positions. The max profit is from the credit received from the short positions, since these are ITM, and the\n" <<
+        "long positions, are referred to as wings, these are OTM. The investor receives credit from the sale because of the more\n" <<
+        "expensive ITM options, which is more than he pays for the OTM options.\n";
 
+        cout << "\nStock and option data:\n";
+        for (double i = 0; i < dates.size(); ++i) {
+            EuropeanOption E(CALL, close_prices[i], round(close_prices[0] * 1.025), .05, v,
+                             (dates.size() - i) / dates.size()); // sell slightly OTM CALL
+            option.push_back(E.getPrice());
+            EuropeanOption F(CALL, close_prices[i], round(close_prices[0] * 1.05), .05, v,
+                             (dates.size() - i) / dates.size()); // buy call more OTM
+            option1.push_back(F.getPrice());
+            EuropeanOption G(PUT, close_prices[i], round(close_prices[0] * .975), .05, v,
+                             (dates.size() - i) / dates.size()); // sell put slightly OTM
+            option2.push_back(G.getPrice());
+            EuropeanOption H(PUT, close_prices[i], round(close_prices[0] * .95), .05, v,
+                             (dates.size() - i) / dates.size()); // but put more OTM
+            option3.push_back(H.getPrice());
+        }
+
+        for (int i = 0; i < 3; ++i) {
+            cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
+                 << "  Short Call price: " << setprecision(2) << fixed << option[i]
+                 << "  Long Call price: " << setprecision(2) << fixed << option1[i]
+                 << "  Short Put price: " << setprecision(2) << fixed << option2[i]
+                 << "  Long Put price: " << setprecision(2) << fixed << option3[i]<< endl;
+        }
+        cout << ".\n.\n.\n";
+        for (int i = 4; i > 1; --i) {
+            cout << "Date: " << dates[dates.size() - i] << "  " << x + " close price: " << setprecision(2) << fixed
+                 << close_prices[dates.size() - i]
+                    << "  Short Call price: " << setprecision(2) << fixed << option[dates.size() - i]
+                    << "  Long Call price: " << setprecision(2) << fixed << option1[dates.size() - i]
+                    << "  Short Put price: " << setprecision(2) << fixed << option2[dates.size() - i]
+                    << "  Long Put price: " << setprecision(2) << fixed << option3[dates.size() - i]<< endl;
+        }
+
+        cout << "\nThe short call is worth: $" << option[0] << " on the day of sale, with a strike price of: " <<
+             round(close_prices[0] * 1.025) << endl << "The long call is worth: $" << option1[0] << " on the day of purchase, with a strike price of: " <<
+             round(close_prices[0] * 1.05) << endl << "The short put is worth: $" << option2[0] <<  " on the day of sale, with a strike price of: "
+             << round(close_prices[0]*.975) << endl << "The long put is worth: $" << option3[0] <<  " on the day of sale, with a strike price of: "
+                                               << round(close_prices[0]*.95) <<endl <<endl;
+
+        cout << "The net credit of the contract is: $" << option[0]  - option1[0] + option2[0] - option3[0] << endl << endl;
+
+        if(close_prices[dates.size() - 1] <  round(close_prices[0] * .95) || close_prices[dates.size() - 1] >  round(close_prices[0] * 1.05)){
+            cout << "The stock finished at: " << close_prices[dates.size() - 1] << ", outside the range of our wing strike prices, making us lose max\n" <<
+                 "limit. Our loss was: $" << -option[0] + 2*option1[0] - option2[0] << " per share." << endl;
+        } else if (close_prices[dates.size() -1] < round(close_prices[0])){
+            cout << "The stock finished at: " << close_prices[dates.size() - 1] << ", near the ATM strike we originally bought it at and we have maximized our profits.\n" <<
+                 "Our P&L is: $" << -option[0] + 2*option1[0] - option2[0] + close_prices[dates.size() -1] - round(close_prices[0] * .9)
+                 << " per share." << endl;
+        } else {
+            cout << "The stock finished at: " << close_prices[dates.size() - 1] << ", near the ATM strike we originally bought it at and we have maximized our profits.\n" <<
+                 "Our P&L is: $" << -option[0] + 2*option1[0] - option2[0] + close_prices[dates.size() -1] - round(close_prices[0] * .9)
+                                    - 2 * (close_prices[dates.size() - 1] - round(close_prices[0])) << " per share." << endl;
+        }
+
+    // FINISH P&L LATER
     }
 
 }
