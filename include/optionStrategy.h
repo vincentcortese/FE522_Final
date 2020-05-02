@@ -164,7 +164,7 @@ void optionStrategy(int input,
              <<
              "This increases downside protection, but will decrease the potential gains. Ideally you would want the stock to finish \n"
              <<
-             "between you long and short options to maximize your gains.\n";
+             "between your long and short options to maximize your gains.\n";
         cout << "\nStock and option data:\n";
 
         for (double i = 0; i < dates.size(); ++i) {
@@ -194,10 +194,11 @@ void optionStrategy(int input,
                 <<"P&L: $(" << -option[0] + option1[0] << ")\n";
         } else if (option1[dates.size() - 1] > 0.01) {
             cout << "This scenario leads to capped gains. We get to buy the stock at the lower strike, and sell at the higher strike. \n"
-                 << "P&L: $" << round(close_prices[0] * 1.2) - round(close_prices[0] * 1.1) << endl;
+                    << "At expiration, the profits are limited to the difference in strike prices.\n"
+                    << "P&L: $" << round(close_prices[0] * 1.2) - round(close_prices[0] * 1.1) << endl;
         } else if(option[dates.size() - 1] > .01 && option1[dates.size() - 1] < 0.01) {
             cout << "This is the best case scenario. The option you bought is in-the-money and the option you sold expired \n" <<
-                 "worthless. P&L: $" << close_prices[dates.size()-1]-round(close_prices[0] * 1.1) + option1[0] << endl;
+                 "worthless. P&L: $" << close_prices[dates.size()-1] - round(close_prices[0] * 1.1) + option1[0] << endl;
     }
 
     } else if (input == 4) {
@@ -236,6 +237,52 @@ void optionStrategy(int input,
         }
     } else if (input == 6) {
         //Bear Put Spread
+        cout << "This is a scenario where the investor believes that a stock will have limited downside by expiration. \n"
+             <<
+             "The investor will buy an in-the-money put, and then sell an OTM put. \n"
+             <<
+             "This increases downside protection, but will decrease the potential gains. Ideally you would want the stock to finish \n"
+             <<
+             "between your long and short options to maximize your gains.\n";
+        cout << "\nStock and option data:\n";
+
+        for (double i = 0; i < dates.size(); ++i) {
+            EuropeanOption E(PUT, close_prices[i], round(close_prices[0] * 1.1), .05, v,
+                             (dates.size() - i) / dates.size());
+            option.push_back(E.getPrice());
+            EuropeanOption F(PUT, close_prices[i], round(close_prices[0] * .9), .05, v,
+                             (dates.size() - i) / dates.size());
+            option1.push_back(F.getPrice());
+        }
+        cout << "We buy a put and sell on a put on date: " << dates[0] << ".\nThe long put was purchased for: $" << option[0] <<
+        " with strike: " << round(close_prices[0] * 1.1) << ".\nThe short put was sold for: $" << option1[0] << " with strike: "
+        << round(close_prices[0] * .9) <<".\n";
+
+        for (double i = 0; i < 3; ++i) {
+            cout << "Date: " << dates[i] << "  " << x + " close price: " << setprecision(2) << fixed << close_prices[i]
+                 << "  Put 1 price:  " << setprecision(2) << fixed << option[i]
+                 << "  Put 2 price:  " << setprecision(2) << fixed << option1[i] << endl;
+        }
+        cout << ".\n.\n.\n";
+        for (double i = 4; i > 1; --i) {
+            cout << "Date: " << dates[dates.size() - i] << "  " << x + " close price: " << setprecision(2) << fixed
+                 << close_prices[dates.size() - i]
+                 << "  Put 1 price:  " << setprecision(2) << fixed << option[dates.size() - i]
+                 << "  Put 2 price:  " << setprecision(2) << fixed << option1[dates.size() - i] << endl;
+        }
+
+        if (option[dates.size() - 1] < .01) {
+            cout << "Both options expire worthless, so you lose your initial investment but you gain the premium on the short call.\n"
+                 <<"P&L: $(" << -option[0] + option1[0] << ")\n";
+        } else if (option1[dates.size() - 1] > 0.01) {
+            cout << "This scenario leads to capped gains. We get to exercise our put, however, we have to cover the short put as well. \n"
+                 << "P&L: $" << round(close_prices[0] * 1.1) - round(close_prices[0] * .9) << endl;
+            cout << "At expiration, the profits are limited to the difference in strike prices.\n";
+        } else if(option[dates.size() - 1] > .01 && option1[dates.size() - 1] < 0.01) {
+            cout << "This is the best case scenario. The option you bought is in-the-money and the option you sold expired \n" <<
+                 "worthless. P&L: $" << round(close_prices[0] * 1.1) - close_prices[dates.size()-1] + option1[0] << endl;
+        }
+
     } else if (input == 7){
         // Straddle/Strangle
         cout << "[1] Straddle\n"
@@ -325,6 +372,11 @@ void optionStrategy(int input,
 
 }
 
+//TODO
+//Protective COllar
+// Iron Condor
+// Butterfly call spread
+// Cash covered put?
 
 
 #endif //FINAL_OPTIONSTRATEGY_H
