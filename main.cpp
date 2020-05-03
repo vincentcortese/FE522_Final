@@ -50,7 +50,8 @@ int main() {
         close_prices.push_back(close);
     }
 
-    optionStrategy(optionInput(), x, dates, close_prices);
+    optionStrategy(x, dates, close_prices);
+
 
     return 0;
 }
