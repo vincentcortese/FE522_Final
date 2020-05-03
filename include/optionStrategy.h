@@ -221,7 +221,8 @@ void optionStrategy(string x,
             cout << "\nThe long call is worth: $" << option[0] << " on the day of purchase, with a strike price of: " <<
                  round(close_prices[0] * 1.1) << endl << "The short call is worth: $" << option1[0]
                  << " on the day of sale, with a strike price of: " <<
-                 round(close_prices[0] * 1.2) << endl << endl;
+                 round(close_prices[0] * 1.2) << endl
+                 << "\nThe net cost of the contract is: $"<< -option[0] + option1[0] << endl << endl;
 
             if (option[len] < .01) {
                 cout
@@ -229,7 +230,7 @@ void optionStrategy(string x,
                         << "Loss of: $" << (-option[0] + option1[0])*-1 << "\n";
             } else if (option1[len] > 0.01) {
                 cout
-                        << "This scenario leads to capped gains. We get to buy the stock at the lower strike, and sell at the higher strike. \n"
+                        << "This scenario leads to capped gains at expiration. We get to buy the stock at the lower strike, and sell at the higher strike. \n"
                         << "At expiration, the profits are limited to the difference in strike prices, less the cost of the options.\n"
                         << "P&L: $"
                         << round(close_prices[0] * 1.2) - round(close_prices[0] * 1.1) - option[0] + option1[0] <<
@@ -394,18 +395,19 @@ void optionStrategy(string x,
                  << option[0] <<
                  " with strike: " << round(close_prices[0] * 1.1) << ".\nThe short put was sold for: $" << option1[0]
                  << " with strike: "
-                 << round(close_prices[0] * .9) << ".\n\n";
+                 << round(close_prices[0] * .9) << endl
+                 << "\nThis net cost of the contract is: $"<< -option[0] + option1[0] << endl << endl;
 
             if (option[len] < .01) {
                 cout
                         << "Both options expire worthless, so you lose your initial investment but you gain the premium on the short call.\n"
-                        << "Loss: $" << -option[0] + option1[0] << " per share.\n";
+                        << "Loss: $" << -option[0] + option1[0] << "\n";
             } else if (option1[len] > 0.01) {
                 cout
                         << "This scenario leads to capped gains. We get to exercise our put, however, we have to cover the short put as well. \n"
                         << "P&L: $"
                         << round(close_prices[0] * 1.1) - round(close_prices[0] * .9) - option[0] + option1[0] <<
-                        " per share." << endl;
+                        endl;
                 cout << "At expiration, the profits are limited to the difference in strike prices.\n";
             } else if (option[len] > .01 && option1[len] < 0.01) {
                 cout
@@ -413,7 +415,7 @@ void optionStrategy(string x,
                         <<
                         "worthless.\nP&L: $"
                         << round(close_prices[0] * 1.1) - close_prices[len] + option1[0] - option[0]
-                        << " per share." << endl;
+                        << endl;
             }
 
         } else if (input == 7) {
@@ -625,24 +627,24 @@ void optionStrategy(string x,
             if (close_prices[len] > round(close_prices[0] * 1.05)) {
                 cout << "The stock finished at: " << close_prices[len]
                      << ", above the range of our wing strike prices, making us lose the max limit.\n" <<
-                     "The loss was: $" << option[0] - option1[0] + option2[0] - option3[0]
+                     "The loss was: $" << (option[0] - option1[0] + option2[0] - option3[0]
                                           + (close_prices[len] - round(close_prices[0] * 1.05))
-                                          - (close_prices[len] - round(close_prices[0] * 1.025))
-                     << " per share." << endl;
+                                          - (close_prices[len] - round(close_prices[0] * 1.025)))*-1
+                     << "" << endl;
 
             } else if (close_prices[len] < round(close_prices[0] * .95)) {
                 cout << "The stock finished at: " << close_prices[len]
                      << ", below the range of our wing strike prices, making us lose the max limit.\n";
 
-                cout << "The loss was: $" << option[0] - option1[0] + option2[0] - option3[0]
+                cout << "The loss was: $" << (option[0] - option1[0] + option2[0] - option3[0]
                                              + (round(close_prices[0] * .95) - close_prices[len])
-                                             - ((round(close_prices[0]) * .975) - close_prices[len])
-                     << " per share.\n";
+                                             - ((round(close_prices[0]) * .975) - close_prices[len]))
+                     << "\n";
             } else {
                 cout << "The stock finished at: " << close_prices[len]
                      << ", which is in between our short call and puts. This would yield\n" <<
                      "the max profit, which is equal to the original credit: $"
-                     << option[0] - option1[0] + option2[0] - option3[0] << " per share.\n" <<
+                     << option[0] - option1[0] + option2[0] - option3[0] << "\n" <<
                      "All the options expired worthless, so we just keep the initial credit.\n";
             }
         }
