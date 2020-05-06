@@ -3,12 +3,69 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
-#include <iomanip>
-#include <sstream>
-#include <numeric>
-#include "include/optionPricing.h"
 #include "include/optionStrategy.h"
 using namespace std;
+
+
+double optionInput(){
+    cout << "\n\nChoose an Option Strategy to test: (pick 1-9)\n";
+    cout << "[1] Long Call\n"
+         << "[2] Covered Call\n"
+         << "[3] Bull Call Spread\n"
+         << "[4] Long Call Butterfly Spread\n"
+         << "[5] Long Put\n"
+         << "[6] Bear Put Spread\n"
+         << "[7] Straddle/Strangle\n"
+         << "[8] Protective Collar\n"
+         << "[9] Iron Condor\n"
+         << "[0] Exit Code\n";
+
+    int input;
+
+    cin >> input;
+
+    return input;
+}
+
+void optionStrategy(string x,
+                    vector<string> dates,
+                    vector<double> close_prices
+) {
+    OptionStrategy strategies(x, dates, close_prices);
+    while (true) {
+        int input = optionInput();
+        if (input == 0){
+            break;
+        }
+        while (input != 1 && input != 2 && input != 3 && input != 4 && input != 5 && input != 6 && input != 7 &&
+               input != 8 && input != 9) {
+            cout << "Invalid!\n\n";
+
+            input = optionInput();
+        }
+
+        if (input == 1) {
+            strategies.longCall();
+        } else if (input == 2) {
+            strategies.coveredCall();
+        } else if (input == 3) {
+            strategies.bullCallSpread();
+        } else if (input == 4) {
+            strategies.callButterflySpread();
+        } else if (input == 5) {
+            strategies.longPut();
+        } else if (input == 6) {
+            strategies.bearPutSpread();
+        } else if (input == 7) {
+            strategies.straddleStrangle();
+        } else if (input == 8) {
+            strategies.protectiveCollar();
+        } else if (input == 9) {
+            strategies.ironCondor();
+        }
+    }
+}
+
 
 
 int main() {
@@ -51,7 +108,6 @@ int main() {
     }
 
     optionStrategy(x, dates, close_prices);
-
 
     return 0;
 }
