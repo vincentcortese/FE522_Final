@@ -2,6 +2,8 @@
 #define FINAL_OPTIONSTRATEGY_H
 #include "optionPricing.h"
 #include <numeric>
+#include "optionPricing.h"
+#include <numeric>
 
 class OptionStrategy{
 
@@ -16,7 +18,7 @@ protected:
 public:
     OptionStrategy(string x_, vector<string> dates_, vector<double> close_prices_): x{x_}, dates{dates_}, close_prices{close_prices_} {
 
-        v = calcvol(close_prices) + .1;
+        v = calcvol(close_prices) * sqrt(252/12);
 
         len = dates.size()-1;
         for(double i = 0; i < len + 1; ++i){
@@ -637,7 +639,6 @@ private:
     }
 
 };
-
 //TODO
 // error check all the strategies
 // make sure outputs are cleaned up, descriptive and concise
